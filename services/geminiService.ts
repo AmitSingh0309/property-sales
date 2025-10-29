@@ -1,11 +1,8 @@
-import { GoogleGenAI, Modality } from "@google/genai";
-import type { Content, ContentPart } from '../types';
+import { GoogleGenAI, Modality, LiveSession } from "@google/genai";
 
 const API_KEY = process.env.API_KEY;
 
 if (!API_KEY) {
-  // In a real app, you'd handle this more gracefully.
-  // For this environment, we assume the key is present.
   console.warn("API_KEY environment variable not set. App may not function correctly.");
 }
 
@@ -44,71 +41,27 @@ You represent a professional property firm that deals in medium to high-end real
 # OUTPUT EXPECTATION
 Maintain conversational flow in Hindi and adapt dynamically to user tone, intent, and interest level.
 Do not switch to English unless explicitly asked.
-Start the first message with a warm greeting in Hindi.
+Start the first message with a warm spoken greeting in Hindi.
 `;
 
-export const sendMessageToAI = async (
-  history: Content[],
-  prompt: string,
-  image: { data: string; mimeType: string } | null
-): Promise<string> => {
-  try {
-    const model = 'gemini-2.5-flash';
-    const contents = [...history];
-    // FIX: Correctly construct user parts for multimodal input.
-    // The image part and text part should be separate to avoid duplicating content.
-    const userParts: ContentPart[] = [];
 
-    if (image) {
-      userParts.push({
-        inlineData: {
-          data: image.data,
-          mimeType: image.mimeType,
-        },
-      });
-    }
-
-    userParts.push({ text: prompt });
-
-    contents.push({ role: 'user', parts: userParts });
-
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: contents,
-      config: {
-        systemInstruction: systemInstruction,
-      },
-    });
-
-    return response.text;
-  } catch (error) {
-    console.error("Error sending message to AI:", error);
-    return "Maaf kijiye, kuch takneeki samasya aa gayi hai. Kripya thodi der baad koshish karein.";
-  }
-};
-
-export const getSpeech = async (text: string): Promise<string | null> => {
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text: text }] }],
-      config: {
-        responseModalities: [Modality.AUDIO],
-        speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: 'Kore' },
+export const connectTeleCaller = (callbacks: {
+    onopen: () => void;
+    onmessage: (message: any) => void;
+    onerror: (e: ErrorEvent) => void;
+    onclose: (e: CloseEvent) => void;
+}): Promise<LiveSession> => {
+    return ai.live.connect({
+        model: 'gemini-2.5-flash-native-audio-preview-09-2025',
+        callbacks: callbacks,
+        config: {
+            responseModalities: [Modality.AUDIO],
+            speechConfig: {
+                voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } },
             },
+            systemInstruction: systemInstruction,
+            inputAudioTranscription: {},
+            outputAudioTranscription: {},
         },
-      },
     });
-    
-    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (base64Audio) {
-      return base64Audio;
-    }
-    return null;
-  } catch (error) {
-    console.error("Error generating speech:", error);
-    return null;
-  }
 };

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ChatWindow from './components/ChatWindow';
+import TeleCallerUI from './components/TeleCallerUI';
 import Header from './components/Header';
 
 const App: React.FC = () => {
@@ -8,7 +8,7 @@ const App: React.FC = () => {
     <div className="flex flex-col h-screen font-sans bg-gray-50">
       <Header />
       <main className="flex-1 overflow-hidden">
-        <ChatWindow />
+        <TeleCallerUI />
       </main>
     </div>
   );

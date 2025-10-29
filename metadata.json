@@ -1,5 +1,7 @@
 {
-  "name": "UP Real Estate AI Agent",
-  "description": "An AI-powered real estate agent to help you find premium properties in Uttar Pradesh, India. Chat in Hindi, analyze property photos, and listen to responses.",
-  "requestFramePermissions": []
+  "name": "UP Real Estate AI Tele-caller",
+  "description": "An AI-powered real estate tele-caller to help you find premium properties in Uttar Pradesh, India. Converse in Hindi, get real-time voice responses, and see a live transcript.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
 }
